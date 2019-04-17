@@ -1,5 +1,5 @@
-timec - the count up timer for terminals
-----------------------------------------
+timec - the count up timer (stopwatch) for terminals
+----------------------------------------------------
 
 ```
 Usage: timec [option]
