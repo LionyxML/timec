@@ -1,0 +1,48 @@
+#!/bin/bash
+# timec - a count up timer
+#
+# Author       : Rahul Martim Juliato (rahul.juliato@gmail.com)
+#
+# Version 1    : Inicial (24.03.2017)
+# Version 2    : Help, version and label options added (07.08.2017)
+
+MESSAGE="
+Usage: $(basename "$0") [option]
+(starts a time up counter on terminal)
+
+[option] list:
+--label \"Text\"		Labels the timer with \"Text\"		
+--help			Shows this message
+--version		Shows current version
+"
+
+case "$1" in
+    --label)
+	[[ $2 ]] && {
+	    LABEL="$2 - "
+	} || {
+	    echo -e "Error: no label defined.\n Use: $(basename "$0") --label \"Your Label\""
+	    exit 0
+	    }
+	;;
+    --help)
+	echo "$MESSAGE"
+	exit 0
+	;;
+    --version)
+	echo 
+	sed -n "2p" "$0" | tr -d "#"
+	grep -e "^# Ver" "$0" | tail -n 1 | cut -d ":" -f 1 | tr -d "#"
+	grep -e "^# Aut" "$0" | cut -d ":" -f 2 | tr -d "#"
+	echo
+	exit 0
+	;;
+esac
+
+inicio=`date +%s`
+
+while true;
+    do
+        echo -ne "$LABEL$(date -u --date @$((`date +%s` - inicio)) +%H:%M:%S)                                \r"
+        sleep 1
+    done
