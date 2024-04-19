@@ -6,7 +6,8 @@ Usage: timec [option]
 (starts a time up counter on terminal)
 
 [option] list:
---label "Text"		Labels the timer with "Text"		
+--label "Text"		Labels the timer with "Text"
+-s <minutes> Run stopwatch for specified minutes and notify
 --help			Shows this message
 --version		Shows current version
 ```
