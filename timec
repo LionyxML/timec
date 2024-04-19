@@ -4,40 +4,74 @@
 # Author       : Rahul Martim Juliato (rahul.juliato@gmail.com)
 #
 # Version 1    : Inicial (24.03.2017)
-# Version 2    : Help, version and label options added (07.08.2017)
+# Version 2    : Help, version, label, and stopwatch options added (07.08.2017)
+# Version 3    : Added stopwatch feature (19.04.2024)
 
 MESSAGE="
 Usage: $(basename "$0") [option]
 (starts a time up counter on terminal)
 
 [option] list:
---label \"Text\"		Labels the timer with \"Text\"		
---help			Shows this message
---version		Shows current version
+--label \"Text\"       Labels the timer with \"Text\"        
+-s <minutes>        Run stopwatch for specified minutes and notify
+--help            Shows this message
+--version        Shows current version
 "
 
 case "$1" in
     --label)
-	[[ $2 ]] && {
-	    LABEL="$2 - "
-	} || {
-	    echo -e "Error: no label defined.\n Use: $(basename "$0") --label \"Your Label\""
-	    exit 0
-	    }
-	;;
+    [[ $2 ]] && {
+        LABEL="$2"
+        shift 2
+    } || {
+        echo -e "Error: no label defined.\n Use: $(basename "$0") --label \"Your Label\""
+        exit 0
+    }
+    ;;
+    --stopwatch|-s)
+        [[ $2 ]] && {
+            MINUTES="$2"
+            NOTIFY_TIME=$((MINUTES*60))
+            shift 2
+        } || {
+            echo -e "Error: missing argument.\n Use: $(basename "$0") --stopwatch|-s <minutes> [--label \"Your Label\"]"
+            exit 0
+        }
+    ;;
     --help)
-	echo "$MESSAGE"
-	exit 0
-	;;
+    echo "$MESSAGE"
+    exit 0
+    ;;
     --version)
-	echo 
-	sed -n "2p" "$0" | tr -d "#"
-	grep -e "^# Ver" "$0" | tail -n 1 | cut -d ":" -f 1 | tr -d "#"
-	grep -e "^# Aut" "$0" | cut -d ":" -f 2 | tr -d "#"
-	echo
-	exit 0
-	;;
+    echo 
+    sed -n "2p" "$0" | tr -d "#"
+    grep -e "^# Ver" "$0" | tail -n 1 | cut -d ":" -f 1 | tr -d "#"
+    grep -e "^# Aut" "$0" | cut -d ":" -f 2 | tr -d "#"
+    echo
+    exit 0
+    ;;
 esac
+
+if [[ -n $NOTIFY_TIME ]]; then
+    echo "Stopwatch started for $MINUTES minutes..."
+    inicio=`date +%s`
+    while true; do
+        elapsed=$((`date +%s` - inicio))
+        remaining=$((NOTIFY_TIME - elapsed))
+        if [[ remaining -le 0 ]]; then
+            notify-send "Stopwatch Completed!" "The stopwatch has completed for $MINUTES minutes."  # Notification
+            echo -e "\aStopwatch completed!"
+            exit 0
+        else
+            if [[ -n $LABEL ]]; then
+                echo -ne "$LABEL: $(date -u --date @${remaining} +%H:%M:%S)               \r"
+            else
+                echo -ne "Remaining time: $(date -u --date @${remaining} +%H:%M:%S)               \r"
+            fi
+            sleep 1
+        fi
+    done
+fi
 
 inicio=`date +%s`
 
